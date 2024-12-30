@@ -1,4 +1,4 @@
-# PDF Table - PDF Table to CSV Converter
+# PDF Table - Convert any table in your PDF file into a CSV table format
 
 PDF Table is a modern web application that makes extracting tables from PDF documents simple and intuitive. With real-time preview and multiple processing options, it transforms complex PDF tables into clean, usable CSV files instantly.
 
