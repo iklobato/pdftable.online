@@ -2,7 +2,8 @@
 
 PDF Table is a modern web application that makes extracting tables from PDF documents simple and intuitive. With real-time preview and multiple processing options, it transforms complex PDF tables into clean, usable CSV files instantly.
 
-![PDF Table Screenshot](https://via.placeholder.com/800x400.png?text=PDF Table+Interface)
+![Screenshot 2024-12-30 at 17 24 18](https://github.com/user-attachments/assets/73e47dc7-139c-4031-8d85-d9201a7350f9)
+
 
 ## ✨ Features
 
