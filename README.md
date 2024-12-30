@@ -72,20 +72,27 @@ Visit `http://localhost:8000` to see the application.
 ## 🏗 Project Structure
 
 ```
-pdf_converter_project/
-├── manage.py
-├── pdf_converter/
-│   ├── __init__.py
-│   ├── asgi.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── wsgi.py
-│   └── core/
-│       ├── __init__.py
-│       ├── views.py
-│       ├── consumers.py
-│       └── templates/
-│           └── index.html
+.
+├── api/                    # API application
+│   ├── consumers.py       # WebSocket consumers
+│   ├── models.py          # Database models
+│   └── views.py           # API views
+├── core/                  # Project settings
+│   ├── asgi.py           # ASGI configuration
+│   ├── settings.py       # Django settings
+│   ├── urls.py           # URL configuration
+│   └── wsgi.py           # WSGI configuration
+├── nginx/                 # Nginx configuration
+│   ├── conf.d/           # Server blocks
+│   └── ssl/              # SSL certificates
+├── static/               # Static files
+│   └── api/
+│       └── js/           # JavaScript modules
+├── templates/            # HTML templates
+|   └── index.html        # Main page
+├── Dockerfile           # Container configuration
+├── compose.yaml         # Docker Compose configuration
+└── pyproject.toml       # Project dependencies
 ```
 
 ## 🛠 Technology Stack
