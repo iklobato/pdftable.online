@@ -1,0 +1,19 @@
+services:
+  server:
+    build:
+      context: .
+    ports:  # Changed from 'expose' to 'ports'
+      - "8080:8080"
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - server
+    restart: always

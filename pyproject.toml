@@ -1,0 +1,16 @@
+[project]
+name = "pdftable"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "camelot[cv]>=12.6.29",
+    "channels>=4.2.0",
+    "daphne>=4.1.2",
+    "django>=5.1.4",
+    "jpype1>=1.5.1",
+    "pandas>=2.2.3",
+    "tabula-py>=2.10.0",
+    "uvicorn>=0.34.0",
+]
