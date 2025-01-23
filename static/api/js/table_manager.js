@@ -1,19 +1,34 @@
 class TableManager {
     static cleanData(rawData) {
-        const validData = rawData.filter(row => {
-            const category = row['Unnamed: 0'];
-            return category && 
-                   ['Blind', 'Low Vision', 'Dexterity', 'Mobility'].includes(category);
-        });
+        // If no data or empty data, return empty array
+        if (!rawData || rawData.length === 0) return [];
 
-        return validData.map(row => ({
-            category: row['Unnamed: 0'] || '',
-            participants: row['Unnamed: 1'] || '',
-            completed: row['Unnamed: 2'] || '',
-            incomplete: row['Unnamed: 3'] || '',
-            accuracy: row['Unnamed: 4'] || '',
-            timeToComplete: row['Results'] || ''
-        }));
+        // Get the keys from the first row
+        const keys = Object.keys(rawData[0]);
+
+        // If no keys, return empty array
+        if (keys.length === 0) return [];
+
+        // If all keys are 'Unnamed', rename them
+        const hasUnnamedColumns = keys.every(key => key.startsWith('Unnamed:'));
+        if (hasUnnamedColumns) {
+            return rawData.map((row, rowIndex) => {
+                const newRow = {};
+                keys.forEach((key, colIndex) => {
+                    newRow[`Column ${colIndex + 1}`] = row[key] || '';
+                });
+                return newRow;
+            });
+        }
+
+        // Return the data as-is if it looks good
+        return rawData.map(row => {
+            const cleanedRow = {};
+            keys.forEach(key => {
+                cleanedRow[key] = row[key] || '';
+            });
+            return cleanedRow;
+        });
     }
 
     static createTable(data) {
@@ -28,16 +43,14 @@ class TableManager {
         const table = document.createElement('table');
         table.className = 'min-w-full divide-y divide-gray-200';
         
+        // Dynamically generate headers from data
+        const headers = Object.keys(data[0] || {});
+        
         // Create headers with sorting and filtering
         const thead = document.createElement('thead');
         thead.className = 'bg-gray-50';
         const headerRow = document.createElement('tr');
         
-        const headers = ['Disability Category', 'Participants', 'Completed Ballots', 
-                        'Incomplete/Terminated', 'Accuracy', 'Time to Complete'];
-        const keys = ['category', 'participants', 'completed', 'incomplete', 
-                     'accuracy', 'timeToComplete'];
-
         headers.forEach((header, index) => {
             const th = document.createElement('th');
             th.className = 'px-6 py-3 text-left';
@@ -81,16 +94,16 @@ class TableManager {
             const tr = document.createElement('tr');
             tr.className = rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50';
             
-            keys.forEach(key => {
+            headers.forEach(header => {
                 const td = document.createElement('td');
                 td.className = 'px-6 py-4 whitespace-nowrap';
                 
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.value = row[key] || '';
+                input.value = row[header] || '';
                 input.className = 'w-full px-2 py-1 text-sm border-0 focus:ring-2 focus:ring-blue-500 rounded';
                 input.onchange = (e) => {
-                    row[key] = e.target.value;
+                    row[header] = e.target.value;
                     this.updateCSVContent(table);
                 };
                 
@@ -230,10 +243,14 @@ class TableManager {
             .map(th => th.querySelector('button').textContent);
         
         const csvContent = [
-            headers.join(','),
+            headers.map(header => `"${header.replace(/"/g, '""')}"`).join(','),
             ...rows.map(row => 
                 Array.from(row.querySelectorAll('input'))
-                    .map(input => input.value)
+                    .map(input => {
+                        const value = input.value;
+                        // Escape double quotes and wrap in quotes
+                        return `"${value.replace(/"/g, '""')}"`;
+                    })
                     .join(',')
             )
         ].join('\n');

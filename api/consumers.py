@@ -1,9 +1,11 @@
 import asyncio
 from io import BytesIO
 import json
+import traceback
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 import base64
+import pandas as pd
 from django.utils.autoreload import logging
 from tabula.io import read_pdf
 
@@ -12,7 +14,8 @@ class PDFConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.send(json.dumps({
             'type': 'progress',
-            'message': 'Upload a PDF file to start processing'
+            'message': 'Upload a PDF file to start processing',
+            'percentage': 0
         }))
 
     async def disconnect(self, close_code):
@@ -24,7 +27,8 @@ class PDFConsumer(AsyncWebsocketConsumer):
         if data['type'] == 'upload':
             await self.send(json.dumps({
                 'type': 'progress',
-                'message': f'Processing {data["filename"]}'
+                'message': f'Processing {data["filename"]}',
+                'percentage': 10
             }))
 
             try:
@@ -33,34 +37,71 @@ class PDFConsumer(AsyncWebsocketConsumer):
                 
                 await self.send(json.dumps({
                     'type': 'progress',
-                    'message': 'Reading tables...'
+                    'message': 'Extracting tables...',
+                    'percentage': 30
                 }))
 
                 pdf_file = BytesIO(pdf_content)
                 dfs = read_pdf(pdf_file, pages='all', multiple_tables=True)
                 
+                total_tables = len(dfs)
+                
+                if total_tables == 0:
+                    await self.send(json.dumps({
+                        'type': 'error',
+                        'message': 'No tables found in the PDF'
+                    }))
+                    return
+
                 for idx, df in enumerate(dfs):
+                    # Calculate progress percentage
+                    progress_percentage = 30 + (idx + 1) * (60 / total_tables)
+                    
                     await self.send(json.dumps({
                         'type': 'progress',
-                        'message': f'Processing table {idx + 1} of {len(dfs)}'
+                        'message': f'Processing table {idx + 1} of {total_tables}',
+                        'percentage': progress_percentage
                     }))
                     
+                    # Fill NaN values with empty string
                     df = df.fillna('')
+                    
+                    # Apply selected operation
                     df = self.process_table(df, data['operation'])
                     
+                    # Convert to CSV
                     csv_content = df.to_csv(index=False)
                     
+                    # Send table details
                     await self.send(json.dumps({
                         'type': 'table',
-                        'content': csv_content
+                        'content': csv_content,
+                        'table_number': idx + 1,
+                        'total_tables': total_tables,
+                        'columns': list(df.columns),
+                        'row_count': len(df)
                     }))
+                    
+                    # Small delay to prevent overwhelming the client
                     await asyncio.sleep(0.1)
+                
+                # Final progress update
+                await self.send(json.dumps({
+                    'type': 'progress',
+                    'message': f'Extracted {total_tables} table(s) successfully',
+                    'percentage': 100
+                }))
 
             except Exception as e:
-                await self.send(json.dumps({
+                # Detailed error logging
+                error_details = {
                     'type': 'error',
-                    'message': str(e)
-                }))
+                    'message': str(e),
+                    'traceback': traceback.format_exc()
+                }
+                logging.error(f"PDF Processing Error: {error_details}")
+                
+                await self.send(json.dumps(error_details))
 
     def process_table(self, df, operation):
         operations = {
