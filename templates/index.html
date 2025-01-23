@@ -71,11 +71,22 @@
         <!-- Preview Section - Now Wider -->
         <div class="bg-white rounded-xl shadow-lg p-6 w-full">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-medium text-gray-700">Live Preview</h3>
-                <button id="copyBtn" class="text-blue-600 hover:text-blue-700 px-3 py-1 rounded-lg flex items-center">
-                    <i class="fas fa-copy mr-2"></i>
-                    Copy CSV
-                </button>
+                <div class="flex items-center space-x-4">
+                    <h3 class="text-lg font-medium text-gray-700">Live Preview</h3>
+                    <div id="tableCount" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        No tables extracted
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="copyBtn" class="text-blue-600 hover:text-blue-700 px-3 py-1 rounded-lg flex items-center">
+                        <i class="fas fa-copy mr-2"></i>
+                        Copy CSV
+                    </button>
+                    <button id="clearTablesBtn" class="text-red-600 hover:text-red-700 px-3 py-1 rounded-lg flex items-center">
+                        <i class="fas fa-trash-alt mr-2"></i>
+                        Clear Tables
+                    </button>
+                </div>
             </div>
             <div id="csvOutput" class="h-[600px] overflow-auto bg-gray-50 rounded-lg p-4"></div>
         </div>

@@ -50,20 +50,40 @@ class PDFProcessor {
                     const cleanedData = TableManager.cleanData(rows);
                     console.log('Cleaned data:', cleanedData);
                     
-                    this.outputElement.innerHTML = '';
+                    // Increment extracted tables count
+                    this.extractedTables++;
+                    this.updateTableCount();
+                    
+                    // Append table details to the output
+                    const tableDetails = document.createElement('div');
+                    tableDetails.className = 'bg-gray-100 p-3 rounded-lg mb-4';
+                    tableDetails.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-semibold text-gray-700">Table ${data.table_number} of ${data.total_tables}</h4>
+                            <span class="text-sm text-gray-600">${data.row_count} rows, ${data.columns.length} columns</span>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-1">Columns: ${data.columns.join(', ')}</div>
+                    `;
+                    this.outputElement.appendChild(tableDetails);
                     
                     if (cleanedData.length > 0) {
                         const table = TableManager.createTable(cleanedData);
                         this.outputElement.appendChild(table);
                         this.addToHistory(cleanedData);
-                        this.showNotification('Table extracted successfully');
+                        this.showNotification(`Table ${data.table_number} extracted successfully`);
                     } else {
                         this.updateOutput('No valid data found in the table');
                     }
                     break;
                     
                 case 'error':
-                    this.updateOutput(`<div class="text-red-600">Error: ${data.message}</div>`);
+                    const errorMessage = data.traceback || data.message;
+                    this.updateOutput(`
+                        <div class="text-red-600 bg-red-50 p-4 rounded-lg">
+                            <strong>Error Processing PDF:</strong>
+                            <pre class="text-sm mt-2 overflow-auto">${errorMessage}</pre>
+                        </div>
+                    `);
                     this.showNotification('Error processing file', 'error');
                     break;
             }
@@ -74,6 +94,9 @@ class PDFProcessor {
     }
 
     setupEventListeners() {
+        // Track extracted tables
+        this.extractedTables = 0;
+
         // File selection
         const fileInput = document.getElementById('pdfFile');
         fileInput.addEventListener('change', (e) => {
@@ -95,6 +118,11 @@ class PDFProcessor {
             this.showNotification('CSV copied to clipboard');
         };
 
+        // Clear tables button
+        document.getElementById('clearTablesBtn').onclick = () => {
+            this.clearTables();
+        };
+
         // Upload form
         document.getElementById('uploadForm').onsubmit = async (e) => {
             e.preventDefault();
@@ -111,6 +139,39 @@ class PDFProcessor {
         // Add undo/redo buttons
         document.getElementById('undoBtn')?.addEventListener('click', () => this.undo());
         document.getElementById('redoBtn')?.addEventListener('click', () => this.redo());
+    }
+
+    clearTables() {
+        // Reset output
+        this.outputElement.innerHTML = '';
+        
+        // Reset CSV content
+        this.csvContent = '';
+        
+        // Reset extracted tables count
+        this.extractedTables = 0;
+        this.updateTableCount();
+        
+        // Reset history
+        this.history = [];
+        this.currentHistoryIndex = -1;
+        this.updateUndoRedoButtons();
+        
+        // Show notification
+        this.showNotification('All tables cleared');
+    }
+
+    updateTableCount() {
+        const tableCountElement = document.getElementById('tableCount');
+        if (tableCountElement) {
+            if (this.extractedTables === 0) {
+                tableCountElement.textContent = 'No tables extracted';
+                tableCountElement.className = 'text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded';
+            } else {
+                tableCountElement.textContent = `${this.extractedTables} table(s) extracted`;
+                tableCountElement.className = 'text-sm text-green-600 bg-green-100 px-2 py-1 rounded';
+            }
+        }
     }
 
     setupKeyboardShortcuts() {
