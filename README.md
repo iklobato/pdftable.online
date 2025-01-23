@@ -1,8 +1,37 @@
-# PDF Table - Convert any table in your PDF file into a CSV table format
+# PDFTablePro - Transform PDF Tables into Actionable Data
 
-PDF Table is a modern web application that makes extracting tables from PDF documents simple and intuitive. With real-time preview and multiple processing options, it transforms complex PDF tables into clean, usable CSV files instantly.
+![PDFTablePro Logo](static/logo.svg)
 
-![Screenshot 2024-12-30 at 17 24 18](https://github.com/user-attachments/assets/73e47dc7-139c-4031-8d85-d9201a7350f9)
+## 🚀 Elevate Your Data Extraction
+
+PDFTablePro is an advanced AI-powered platform that transforms complex PDF tables into clean, actionable data. Our cutting-edge technology simplifies the process of extracting, analyzing, and visualizing information from any PDF document.
+
+### 🌟 Why PDFTablePro?
+
+- **Intelligent Extraction**: Advanced AI detects and extracts tables with unprecedented accuracy
+- **Instant Insights**: Real-time data visualization and statistical analysis
+- **Seamless Workflow**: From PDF to actionable data in seconds
+- **Multiple Export Options**: CSV, Excel, JSON, and more
+
+### 💡 Key Features
+
+- Automatic table detection
+- Multi-language support
+- Interactive data visualization
+- Advanced statistical analysis
+- Flexible processing options
+
+## 🎯 Who Is It For?
+
+- Data Analysts
+- Researchers
+- Business Professionals
+- Students
+- Anyone working with PDF documents
+
+## 🔮 Vision
+
+Our mission is to democratize data extraction, making complex information accessible and actionable for everyone.
 
 
 ## ✨ Features
