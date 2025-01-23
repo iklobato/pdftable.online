@@ -7,6 +7,13 @@ PDF Table is a modern web application that makes extracting tables from PDF docu
 
 ## ✨ Features
 
+- **Advanced Table Extraction**: 
+  - Extract multiple tables from a single PDF document
+  - Detailed table information including page number and table area
+- **Intelligent Data Analysis**:
+  - Automatic column type detection
+  - Statistical insights for numeric and categorical data
+  - Interactive data visualization
 - **Real-time Preview**: See your PDF and the extracted data side by side
 - **Multiple Processing Options**:
   - Standard Table Extraction
@@ -15,9 +22,23 @@ PDF Table is a modern web application that makes extracting tables from PDF docu
   - Fill Empty Cells
   - Remove Empty Rows/Columns
   - Transpose Tables
+- **Data Visualization**:
+  - Interactive charts (Bar, Line, Pie)
+  - Dynamic column selection
+  - Instant visual insights
+- **Intelligent Table Detection**: 
+  - Uses Camelot for robust table recognition
+  - Handles complex PDF layouts
 - **WebSocket Integration**: Instant updates as you modify processing options
 - **Modern UI**: Clean, responsive interface with drag-and-drop support
-- **Copy to Clipboard**: One-click CSV copying
+- **Advanced Data Handling**:
+  - Column type inference
+  - Input validation
+  - Flexible data transformation
+- **Export and Sharing**: 
+  - One-click CSV copying
+  - Export individual or all extracted tables
+  - Clear and manage extracted tables
 
 ## 🚀 Quick Start
 
@@ -116,9 +137,43 @@ Visit `http://localhost:8000` to see the application.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🗺️ Roadmap and Future Improvements
+
+### Upcoming Features
+
+1. **Advanced Table Analysis**
+   - Automatic column type detection
+   - Data validation and cleaning
+   - Machine learning-powered table recognition
+
+2. **Enhanced Export Capabilities**
+   - Multiple format exports (Excel, JSON)
+   - Cloud storage integration
+   - Direct database export
+
+3. **Visualization and Insights**
+   - Basic data visualization
+   - Statistical summary generation
+   - Interactive chart creation
+
+4. **Collaboration Tools**
+   - User accounts
+   - Shareable table links
+   - Version history tracking
+
+5. **Performance Improvements**
+   - Parallel table extraction
+   - Batch processing
+   - Cloud-based processing support
+
+### Community Contributions
+
+We welcome contributions! Check out our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to propose features, report bugs, and submit pull requests.
+
 ## 🙏 Acknowledgments
 
 - [Tabula-py](https://github.com/chezou/tabula-py) for PDF table extraction
+- [Camelot](https://camelot-py.readthedocs.io/) for advanced table parsing
 - [PDF.js](https://mozilla.github.io/pdf.js/) for PDF rendering
 - [Tailwind CSS](https://tailwindcss.com/) for styling
 

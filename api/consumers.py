@@ -6,8 +6,9 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 import base64
 import pandas as pd
+import camelot
+import numpy as np
 from django.utils.autoreload import logging
-from tabula.io import read_pdf
 
 class PDFConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -35,16 +36,20 @@ class PDFConsumer(AsyncWebsocketConsumer):
                 content = data['content'].split(',')[1]
                 pdf_content = base64.b64decode(content)
                 
+                # Save PDF to a temporary file
+                with open('/tmp/temp_pdf.pdf', 'wb') as f:
+                    f.write(pdf_content)
+                
                 await self.send(json.dumps({
                     'type': 'progress',
-                    'message': 'Extracting tables...',
+                    'message': 'Detecting tables...',
                     'percentage': 30
                 }))
 
-                pdf_file = BytesIO(pdf_content)
-                dfs = read_pdf(pdf_file, pages='all', multiple_tables=True)
+                # Use Camelot for more robust table detection
+                tables = camelot.read_pdf('/tmp/temp_pdf.pdf', pages='all')
                 
-                total_tables = len(dfs)
+                total_tables = len(tables)
                 
                 if total_tables == 0:
                     await self.send(json.dumps({
@@ -53,7 +58,7 @@ class PDFConsumer(AsyncWebsocketConsumer):
                     }))
                     return
 
-                for idx, df in enumerate(dfs):
+                for idx, table in enumerate(tables):
                     # Calculate progress percentage
                     progress_percentage = 30 + (idx + 1) * (60 / total_tables)
                     
@@ -63,8 +68,11 @@ class PDFConsumer(AsyncWebsocketConsumer):
                         'percentage': progress_percentage
                     }))
                     
-                    # Fill NaN values with empty string
-                    df = df.fillna('')
+                    # Convert table to DataFrame
+                    df = table.df
+                    
+                    # Clean up the DataFrame
+                    df = self.clean_dataframe(df)
                     
                     # Apply selected operation
                     df = self.process_table(df, data['operation'])
@@ -79,7 +87,9 @@ class PDFConsumer(AsyncWebsocketConsumer):
                         'table_number': idx + 1,
                         'total_tables': total_tables,
                         'columns': list(df.columns),
-                        'row_count': len(df)
+                        'row_count': len(df),
+                        'page_number': table.page,
+                        'table_area': table.table_bbox
                     }))
                     
                     # Small delay to prevent overwhelming the client
@@ -102,6 +112,24 @@ class PDFConsumer(AsyncWebsocketConsumer):
                 logging.error(f"PDF Processing Error: {error_details}")
                 
                 await self.send(json.dumps(error_details))
+
+    def clean_dataframe(self, df):
+        # Remove completely empty rows and columns
+        df = df.dropna(how='all', axis=1).dropna(how='all', axis=0)
+        
+        # Replace NaN with empty string
+        df = df.fillna('')
+        
+        # Remove leading/trailing whitespaces
+        df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+        
+        # Rename columns if they are empty or duplicated
+        df.columns = [f'Column {i+1}' if pd.isna(col) or col == '' else col for i, col in enumerate(df.columns)]
+        
+        # Ensure unique column names
+        df.columns = pd.io.parsers.ParserBase({'names':df.columns})._maybe_dedup_names(df.columns)
+        
+        return df
 
     def process_table(self, df, operation):
         operations = {

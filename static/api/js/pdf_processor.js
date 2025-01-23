@@ -56,13 +56,19 @@ class PDFProcessor {
                     
                     // Append table details to the output
                     const tableDetails = document.createElement('div');
-                    tableDetails.className = 'bg-gray-100 p-3 rounded-lg mb-4';
+                    tableDetails.className = 'bg-gray-100 p-3 rounded-lg mb-4 space-y-2';
                     tableDetails.innerHTML = `
                         <div class="flex justify-between items-center">
                             <h4 class="font-semibold text-gray-700">Table ${data.table_number} of ${data.total_tables}</h4>
                             <span class="text-sm text-gray-600">${data.row_count} rows, ${data.columns.length} columns</span>
                         </div>
-                        <div class="text-sm text-gray-500 mt-1">Columns: ${data.columns.join(', ')}</div>
+                        <div class="text-sm text-gray-500">
+                            <div>Columns: ${data.columns.join(', ')}</div>
+                            <div class="mt-1">
+                                <strong>Page:</strong> ${data.page_number} 
+                                <span class="ml-2"><strong>Table Area:</strong> ${JSON.stringify(data.table_area)}</span>
+                            </div>
+                        </div>
                     `;
                     this.outputElement.appendChild(tableDetails);
                     
@@ -70,7 +76,7 @@ class PDFProcessor {
                         const table = TableManager.createTable(cleanedData);
                         this.outputElement.appendChild(table);
                         this.addToHistory(cleanedData);
-                        this.showNotification(`Table ${data.table_number} extracted successfully`);
+                        this.showNotification(`Table ${data.table_number} extracted successfully from page ${data.page_number}`);
                     } else {
                         this.updateOutput('No valid data found in the table');
                     }
