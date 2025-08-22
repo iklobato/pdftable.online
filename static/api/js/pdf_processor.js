@@ -11,6 +11,8 @@ class PDFProcessor {
         this.connectWebSocket();
         this.setupEventListeners();
         this.setupKeyboardShortcuts();
+        // Expose instance for other modules (e.g., TableManager export/update)
+        window.pdfProcessor = this;
     }
 
     connectWebSocket() {
@@ -217,13 +219,19 @@ class PDFProcessor {
     }
 
     parseCSV(csvContent) {
-        const lines = csvContent.split('\n');
+        // Prefer PapaParse when present to handle quoted commas and edge cases
+        if (window.Papa) {
+            const result = window.Papa.parse(csvContent, { header: true, skipEmptyLines: true });
+            return Array.isArray(result.data) ? result.data : [];
+        }
+        // Fallback naive parser
+        const lines = csvContent.split('\n').filter(Boolean);
+        if (lines.length === 0) return [];
         const headers = lines[0].split(',');
-        
         return lines.slice(1).map(line => {
             const values = line.split(',');
             return headers.reduce((obj, header, index) => {
-                obj[header.trim()] = values[index]?.trim() || '';
+                obj[header.trim()] = (values[index] ?? '').trim();
                 return obj;
             }, {});
         });

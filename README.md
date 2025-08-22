@@ -63,9 +63,14 @@ sudo apt-get install default-jdk
 python manage.py migrate
 ```
 
-6. Start the development server:
+6. Collect static files:
 ```bash
-python manage.py runserver
+python manage.py collectstatic
+```
+
+7. Start the development server:
+```bash
+daphne core.asgi:application
 ```
 
 Visit `http://localhost:8000` to see the application.

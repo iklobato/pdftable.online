@@ -1,19 +1,20 @@
 class TableManager {
     static cleanData(rawData) {
-        const validData = rawData.filter(row => {
-            const category = row['Unnamed: 0'];
-            return category && 
-                   ['Blind', 'Low Vision', 'Dexterity', 'Mobility'].includes(category);
+        if (!Array.isArray(rawData)) return [];
+
+        // Normalize keys/values (trim, convert undefined/null to empty string)
+        const normalized = rawData.map((row) => {
+            const result = {};
+            Object.entries(row || {}).forEach(([key, value]) => {
+                const normalizedKey = String(key).trim();
+                const normalizedValue = (value ?? '').toString().trim();
+                result[normalizedKey] = normalizedValue;
+            });
+            return result;
         });
 
-        return validData.map(row => ({
-            category: row['Unnamed: 0'] || '',
-            participants: row['Unnamed: 1'] || '',
-            completed: row['Unnamed: 2'] || '',
-            incomplete: row['Unnamed: 3'] || '',
-            accuracy: row['Unnamed: 4'] || '',
-            timeToComplete: row['Results'] || ''
-        }));
+        // Drop rows that are entirely empty
+        return normalized.filter((row) => Object.values(row).some((v) => v !== ''));
     }
 
     static createTable(data) {
@@ -33,10 +34,8 @@ class TableManager {
         thead.className = 'bg-gray-50';
         const headerRow = document.createElement('tr');
         
-        const headers = ['Disability Category', 'Participants', 'Completed Ballots', 
-                        'Incomplete/Terminated', 'Accuracy', 'Time to Complete'];
-        const keys = ['category', 'participants', 'completed', 'incomplete', 
-                     'accuracy', 'timeToComplete'];
+        const keys = this.getHeadersFromData(data);
+        const headers = keys; // Use incoming header names as labels
 
         headers.forEach((header, index) => {
             const th = document.createElement('th');
@@ -105,6 +104,12 @@ class TableManager {
         container.appendChild(table);
         
         return container;
+    }
+
+    static getHeadersFromData(data) {
+        if (!Array.isArray(data) || data.length === 0) return [];
+        const sample = data.find((row) => row && typeof row === 'object');
+        return sample ? Object.keys(sample) : [];
     }
 
     static createToolbar() {

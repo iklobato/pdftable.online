@@ -5,7 +5,6 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "camelot[cv]>=12.6.29",
     "channels>=4.2.0",
     "daphne>=4.1.2",
     "django>=5.1.4",
